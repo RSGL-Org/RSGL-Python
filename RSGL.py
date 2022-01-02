@@ -73,16 +73,59 @@ class window:
         self.r = rect
         self.display = display.Display()
         self.color = color
-        self.d = XCreateSimpleWindow(display, parent, winrect.x,winrect.y,winrect.width,winrect.length, 0,0,  RSGLRGBTOHEX(c.r,c.g,c.b))
+        self.screen = self.display.screen()
+        self.d = self.screen.root.create_window(rect.x,rect.y,rect.width,rect.length,2,self.screen.root_depth,X.InputOutput,X.CopyFromParent,
+        background_pixel = self.screen.white_pixel,
+        event_mask = (X.ExposureMask | X.StructureNotifyMask | X.ButtonPressMask | X.ButtonReleaseMask | X.Button1MotionMask),
+        colormap = X.CopyFromParent)
+        self.WM_DELETE_WINDOW = self.display.intern_atom('WM_DELETE_WINDOW')
+        self.WM_PROTOCOLS = self.display.intern_atom('WM_PROTOCOLS')
+
+        self.d.set_wm_name(name)
+        self.d.set_wm_icon_name(name)
+
+        self.d.set_wm_protocols([self.WM_DELETE_WINDOW])
+        self.d.set_wm_hints(flags = Xutil.StateHint,
+                                 initial_state = Xutil.NormalState)
+
+        self.d.set_wm_normal_hints(flags = (Xutil.PPosition | Xutil.PSize
+                                                 | Xutil.PMinSize),
+                                        min_width = 20,
+                                        min_height = 20)
+
+        self.d.map()
         self.dbuffer = pixmap(self.d,(rect.length,rect.width))
         self.keyboard = []
     def checkEvents(self):
-        pass
+        E = self.display.next_event()
+        self.event.type = E.type
+        if (self.event.type == 33 and E.xclient.data.l[0] == XInternAtom(display, "WM_DELETE_WINDOW", true)):
+            pass 
+        elif (self.event.type == 33 and E.xclient.message_type == XInternAtom(display, "XdndDrop", false)): self.event.type=34 
+        elif (self.event.type==33): self.event.type = 0
+        if (self.event.type == 4 or self.event.type == 5): self.event.button = E.xbutton.button
+        if (self.event.type == 4 or self.event.type == 5 or self.event.type == 6):
+            self.event.x=E.xbutton.x 
+            self.event.y=E.xbutton.y
+        if (self.event.type == 2 or self.event.type == 3):
+            XQueryKeymap(display,keyboard)
+        if (self.event.type == 2 or self.event.type == 3):
+             self.event.keycode = XKeycodeToKeysym(display,E.xkey.keycode,1); 
+             self.event.key=XKeysymToString(event.keycode)
+        else:
+            self.event.keycode = 0 
+            self.event.key=""
+        #XKeyboardState keystate
+        #XGetKeyboardControl(display,&keystate)
+        #event.ledState= keystate.led_mask
+
     def isPressed(self, key):
         pass
     def close(self):
+        XDestroyWindow(self.display, self.d)
         self.display.close()
     def clear(self):
+        #XClearWindow(self.display,self.d)
         pass
 
 root = None
@@ -133,8 +176,15 @@ def fileDialog(title,multiple=False,save=False,directory=False):
     pass
     
 def notifiy(title, content ,image=""):
-    pass
-    
+    com = "notify-send \"" + title +"\" \"" + content + "\" "
+    if (image != ""):  com += "-i \"" + image + "\""
+    os.system(com)
+
 def messageBox(message,question=False,error=False):
-    pass
+    com = "zenity "
+    if (question): com+="--question "
+    elif (error): com+= "--error "
+    else: com+="--warning "
+    com += "--text \"" + message + "\""
+    os.system(com)
 
