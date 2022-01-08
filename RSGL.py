@@ -181,6 +181,8 @@ class window:
         pass
 
 def CircleCollidePoint(c,p):
+    c = circle.initList(None,c)
+    p = point.initList(None,p)
     testX, testY = c.x, c.y
     if (c.x < p.x):testX = p.x  
     elif (c.x > p.x+1): testX = p.x+1
@@ -188,6 +190,8 @@ def CircleCollidePoint(c,p):
     elif (c.y > p.y+1): testY = p.y+1
     return sqrt(((c.x-testX)*(c.x-testX))+((c.y-testY)*(c.y-testY))) <= c.radius
 def CircleCollideRect(c, r):
+    c = circle.initList(None,c)
+    r = rect.initList(None,r)
     testX, testY = c.x, c.y
 
     if (c.x < r.x): testX = r.x  
@@ -197,7 +201,9 @@ def CircleCollideRect(c, r):
   
     return (sqrt( ( (c.x-testX) * (c.x-testX) ) + ( (c.y-testY) *(c.y-testY) ) )  <= c.radius)
     
-def CircleCollide(cir1,cir2):
+def CircleCollide(c1,c2):
+    c1 = circle.initList(None,c1)
+    c2 = circle.initList(None,c2)
     distanceBetweenCircles = sqrt(
 	    (cir2.x - cir.x) * (cir2.x - cir.x) + 
         (cir2.y - cir.y) * (cir2.y - cir.y))
@@ -205,12 +211,18 @@ def CircleCollide(cir1,cir2):
         return 0 
     return 1
 def RectCollidePoint(r, p):
+    r = rect.initList(None,r)
+    p = point.initList(None,p)
     if (p.x >= r.x and  p.x <= r.x + r.width and p.y >= r.y and p.y <= r.y + r.length): return 1
     return 0
 def RectCollideRect(r, r2):
+    r1 = rect.initList(None,r1)
+    r2 = rect.initList(None,r2)
     if(r.x + r.width >= r2.x and r.x <= r2.x + r2.width and r.y + r.length >= r2.y and r.y <= r2.y + r2.length): return 1
     return 0
 def PointCollide(p, p2):
+    p1 = point.initList(None,p1)
+    p2 = point.initList(None,p2)
     if (p.x == p2.x and p.y == p2.y): return 1
     return 0
 
@@ -229,17 +241,19 @@ class Text:
         return Text(l[0],l[1],l[2],l[3],l[4],l[5])
     
 def drawText(text, font, c,d=root):
-    pass
-    
-def drawPoint( p,  c, win=root):
-    RSGL.drawRect(RSGL.rect(p.x,p.y,1,1),RSGL.color(c.r,c.g,c.b),False)
+    c = circle.initList(None,c)
+    col = color.initList(None,col)
 
 def drawLine(p1,p2, c,width=1):
-    passa
+    p1 = point.initList(None,p1)
+    p2 = point.initList(None,p2)
+    c = color.initList(None,c)
 
 def drawRect(r,c,fill=True,win=root):
+    r = rect.initList(None,r)
+    c = color.initList(None,c)
     #root.screen.foreground_pixel = RSGLRGBTOHEX(c.r,c.g,c.b)
-   # win.screen.change_attributes(foreground_pixel=RSGLRGBTOHEX(c.r,c.g,c.b))
+    # win.screen.change_attributes(foreground_pixel=RSGLRGBTOHEX(c.r,c.g,c.b))
     if (fill):
         r = root.display.screen().root
         gc = r.create_gc()
@@ -250,15 +264,20 @@ def drawRect(r,c,fill=True,win=root):
         drawLine({r.x,r.x},{r.x+r.width,r.y},c)
         drawLine({r.x,r.y+r.length},{r.x+r.width,r.y+r.length},c)"""
      
-    
+def drawPoint( p,  c, win=root):
+    p = point.initList(None,p)
+    c = color.initList(None,c)
+    RSGL.drawRect(RSGL.rect(p.x,p.y,1,1),RSGL.color(c.r,c.g,c.b),False)
+
 def drawCircle(c,col,fill=True):
-    pass
+    c = circle.initList(None,c)
+    col = color.initList(None,col)
     
 def drawImage(fileName, r, resize=True, d=root):
-    pass
+    r = rect.initList(None,r)
     
-def resizeImage(image,newSize,ogsize):
-    pass
+def resizeImage(image,a):
+    a = area.initList(None,a)
     
 def fileDialog(title,multiple=False,save=False,directory=False):
     pass
