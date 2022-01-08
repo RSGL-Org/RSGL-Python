@@ -127,7 +127,6 @@ class window:
         colormap = X.CopyFromParent)
         self.WM_DELETE_WINDOW = self.display.intern_atom('WM_DELETE_WINDOW')
         self.WM_PROTOCOLS = self.display.intern_atom('WM_PROTOCOLS')
-        print(type(self.d))
         self.d.set_wm_name(name)
         self.d.set_wm_icon_name(name)
 
