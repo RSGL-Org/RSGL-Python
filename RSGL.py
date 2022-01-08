@@ -15,6 +15,13 @@ class point:
     def __init__(self,x,y):
         self.x=x
         self.y=y
+    def initList(self,l):
+        args=2
+        if (type(l) != list): return l
+        for i in range(args): 
+            if(len(l) < i+1): l.insert(i+1,None)
+        return point(l[0],l[1])
+
 
 class rect:
     def __init__(self,x,y,width,length):
@@ -22,17 +29,37 @@ class rect:
         self.y=y
         self.width=width
         self.length=length
+    def initList(self,l):
+        args=4
+        if (type(l) != list): return l
+        for i in range(args): 
+            if(len(l) < i+1): l.insert(i+1,None)
+        return rect(l[0],l[1],l[2],l[3])
+
 
 class circle:
     def __init__(self,x,y,radius):
         self.x=x
         self.y=y
         self.radius=radius
+    def initList(self,l):
+        args=3
+        if (type(l) != list): return l
+        for i in range(args): 
+            if(len(l) < i+1): l.insert(i+1,None)
+        return circle(l[0],l[1],l[2])
 
 class area:
     def __init__(self,width,length):
         self.width=width
         self.length=length
+    def initList(self,l):
+        args=2
+        if (type(l) != list): return l
+        for i in range(args): 
+            if(len(l) < i+1): l.insert(i+1,None)
+        return area(l[0],l[1])
+
 
 class color:
     def __init__(self,r,g,b,a=100):
@@ -40,6 +67,13 @@ class color:
         self.g=g
         self.b=b
         self.a=a
+    def initList(self,l):
+        args=4
+        if (type(l) != list): return l
+        for i in range(args): 
+            if(len(l) < i+1): l.insert(i+1,None)
+        return color(l[0],l[1],l[2],l[3])
+
 
 class drawable:
     def __init__(self,r,display,d,color):
@@ -47,6 +81,13 @@ class drawable:
         self.display = display
         self.d = None
         self.color = color
+    def initList(self,l):
+        args=4
+        if (type(l) != list): return l
+        for i in range(args): 
+            if(len(l) < i+1): l.insert(i+1,None)
+        return drawable(l[0],l[1],l[2],l[3])
+
     def loadArea(self,dsrc,r,p):
         self.r = r
         self.display = display
@@ -58,6 +99,8 @@ class pixmap:
     def __init__(self,dr,a):
         pass
     
+root = None
+
 class window:
     class Event:
         def __init__(self):
@@ -68,14 +111,18 @@ class window:
             self.key = None
             self.ledState = None
 
-    def __init__(self,name,rect,color,resize=False):
+    def __init__(self,name,Rect,Color,resize=False):
+        Rect = rect.initList(None,Rect)
+        Color = color.initList(None,Color)
+        global root
         self.event = self.Event()
-        self.r = rect
+        self.r = Rect
         self.display = display.Display()
-        self.color = color
+        self.color = Color
         self.screen = self.display.screen()
-        self.d = self.screen.root.create_window(rect.x,rect.y,rect.width,rect.length,2,self.screen.root_depth,X.InputOutput,X.CopyFromParent,
-        background_pixel = self.screen.white_pixel,
+        self.d = self.screen.root.create_window(Rect.x,Rect.y,Rect.width,Rect.length,2,self.screen.root_depth,X.InputOutput,X.CopyFromParent,
+        background_pixel = RSGLRGBTOHEX(Color.r,Color.g,Color.b),
+        foreground_pixel = RSGLRGBTOHEX(0,0,0),
         event_mask = (X.ExposureMask | X.StructureNotifyMask | X.ButtonPressMask | X.ButtonReleaseMask | X.Button1MotionMask),
         colormap = X.CopyFromParent)
         self.WM_DELETE_WINDOW = self.display.intern_atom('WM_DELETE_WINDOW')
@@ -94,8 +141,17 @@ class window:
                                         min_height = 20)
 
         self.d.map()
-        self.dbuffer = pixmap(self.d,(rect.length,rect.width))
+        self.dbuffer = pixmap(self.d,(Rect.length,Rect.width))
         self.keyboard = []
+        if (root==None): root=self
+    
+    def initList(self,l):
+        args=4
+        if (type(l) != list): return l
+        for i in range(args): 
+            if(len(l) < i+1): l.insert(i+1,None)
+        return window(l[0],l[1],l[2],l[3])
+    
     def checkEvents(self):
         E = self.display.next_event()
 
@@ -125,15 +181,13 @@ class window:
         #XClearWindow(self.display,self.d)
         pass
 
-root = None
-
 def CircleCollidePoint(c,p):
     testX, testY = c.x, c.y
     if (c.x < p.x):testX = p.x  
     elif (c.x > p.x+1): testX = p.x+1
     if (c.y < p.y): testY = p.y
-    elif (c.y > p.y+1): testY = p.y+1 
-  	return sqrt(((c.x-testX)*(c.x-testX))+((c.y-testY)*(c.y-testY))) <= c.radius
+    elif (c.y > p.y+1): testY = p.y+1
+    return sqrt(((c.x-testX)*(c.x-testX))+((c.y-testY)*(c.y-testY))) <= c.radius
 def CircleCollideRect(c, r):
     testX, testY = c.x, c.y
 
@@ -168,6 +222,12 @@ class Text:
         self.text = text
         self.f = f
         self.d=d
+    def initList(self,l):
+        args=6
+        if (type(l) != list): return l
+        for i in range(args): 
+            if(len(l) < i+1): l.insert(i+1,None)
+        return Text(l[0],l[1],l[2],l[3],l[4],l[5])
     
 def drawText(text, font, c,d=root):
     pass
@@ -179,18 +239,17 @@ def drawLine(p1,p2, c,width=1):
     passa
 
 def drawRect(r,c,fill=True,win=root):
-    XSetForeground(win.display,XDefaultGC(win.display,XDefaultScreen(win.display)),
-    RSGLRGBTOHEX(c.r,c.g,c.b))
+    #root.screen.foreground_pixel = RSGLRGBTOHEX(c.r,c.g,c.b)
+   # win.screen.change_attributes(foreground_pixel=RSGLRGBTOHEX(c.r,c.g,c.b))
     if (fill):
         r = root.display.screen().root
         gc = r.create_gc()
         r.fill_rectangle(gc, 100, 100, 500, 500)
-    else{
-        RSGL::drawLine({r.x,r.y},{r.x,r.y+r.length},c);
-        RSGL::drawLine({r.x+r.width,r.y},{r.x+r.width,r.y+r.length},c);
-        RSGL::drawLine({r.x,r.x},{r.x+r.width,r.y},c);
-        RSGL::drawLine({r.x,r.y+r.length},{r.x+r.width,r.y+r.length},c);
-      }
+    """else:
+        drawLine({r.x,r.y},{r.x,r.y+r.length},c)
+        drawLine({r.x+r.width,r.y},{r.x+r.width,r.y+r.length},c)
+        drawLine({r.x,r.x},{r.x+r.width,r.y},c)
+        drawLine({r.x,r.y+r.length},{r.x+r.width,r.y+r.length},c)"""
      
     
 def drawCircle(c,col,fill=True):
