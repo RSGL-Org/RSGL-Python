@@ -1,5 +1,6 @@
 from Xlib import X, display, Xutil, threaded
 import os
+from PIL import Image
 
 def RSGLRGBTOHEX(r, g, b): return ((r << 16) + (g << 8) + b)
 
@@ -114,7 +115,6 @@ class window:
     def __init__(self,name,Rect,Color,resize=False):
         Rect = rect.initList(None,Rect)
         Color = color.initList(None,Color)
-        global root
         self.event = self.Event()
         self.r = Rect
         self.display = display.Display()
@@ -142,6 +142,7 @@ class window:
         self.d.map()
         self.dbuffer = pixmap(self.d,(Rect.length,Rect.width))
         self.keyboard = []
+        global root
         if (root==None): root=self
     
     def initList(self,l):
@@ -177,8 +178,7 @@ class window:
     def close(self):
         self.display.close()
     def clear(self):
-        #XClearWindow(self.display,self.d)
-        pass
+        self.d.clear_area()
 
 def CircleCollidePoint(c,p):
     c = circle.initList(None,c)
@@ -249,32 +249,44 @@ def drawLine(p1,p2, c,width=1):
     p2 = point.initList(None,p2)
     c = color.initList(None,c)
 
-def drawRect(r,c,fill=True,win=root):
+def drawRect(r,c,fill=True,d=root):
+    if (d == None and root != None): d=root
     r = rect.initList(None,r)
     c = color.initList(None,c)
-    #root.screen.foreground_pixel = RSGLRGBTOHEX(c.r,c.g,c.b)
-    # win.screen.change_attributes(foreground_pixel=RSGLRGBTOHEX(c.r,c.g,c.b))
+    gc = d.d.create_gc(foreground =RSGLRGBTOHEX(c.r,c.g,c.b))
     if (fill):
-        r = root.display.screen().root
-        gc = r.create_gc()
-        r.fill_rectangle(gc, 100, 100, 500, 500)
-    """else:
-        drawLine({r.x,r.y},{r.x,r.y+r.length},c)
-        drawLine({r.x+r.width,r.y},{r.x+r.width,r.y+r.length},c)
-        drawLine({r.x,r.x},{r.x+r.width,r.y},c)
-        drawLine({r.x,r.y+r.length},{r.x+r.width,r.y+r.length},c)"""
+        d.d.fill_rectangle(gc,r.x,r.y,r.width,r.length)
+        d.display.flush()
+    else:
+        drawLine([r.x,r.y],[r.x,r.y+r.length],c)
+        drawLine([r.x+r.width,r.y],[r.x+r.width,r.y+r.length],c)
+        drawLine([r.x,r.x],[r.x+r.width,r.y],c)
+        drawLine([r.x,r.y+r.length],[r.x+r.width,r.y+r.length],c)
      
 def drawPoint( p,  c, win=root):
     p = point.initList(None,p)
     c = color.initList(None,c)
     RSGL.drawRect(RSGL.rect(p.x,p.y,1,1),RSGL.color(c.r,c.g,c.b),False)
 
-def drawCircle(c,col,fill=True):
+def drawCircle(c,col,fill=True, win=root):
+    if (win == None and root != None): win=root
     c = circle.initList(None,c)
     col = color.initList(None,col)
-    
+    gc = win.d.create_gc(foreground =RSGLRGBTOHEX(col.r,col.g,col.b))
+    if (fill):
+        # gc, x, y, width, height, angle1, angle2
+        win.d.fill_arc(gc,int(c.x-(30/2)),int(c.y-(30/2)), int(c.radius), int(c.radius), 0, 360*64)
+        d.display.flush()
+    else:
+        win.d.arc(gc,int(c.x-(30/2)),int(c.y-(30/2)), int(c.radius), int(c.radius), 0, 360*64)
+        d.display.flush()
+
 def drawImage(fileName, r, resize=True, d=root):
     r = rect.initList(None,r)
+    im = Image.open(fileName)
+    for y in range(im.height):
+        for x in range(im.width):
+            drawRect([r.x+x,r.y+y,1,1],[im.__array__()[y][x][0],im.__array__()[y][x][1],im.__array__()[y][x][2]])
     
 def resizeImage(image,a):
     a = area.initList(None,a)

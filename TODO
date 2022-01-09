@@ -1,0 +1,8 @@
+//functions
+- draw text
+- draw line
+- isPressed
+- file dialog
+
+//other
+- threading (bruh python-xlib is SUPER slow)
